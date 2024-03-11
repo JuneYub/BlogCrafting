@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -28,13 +30,35 @@ public class PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow( () -> new IllegalArgumentException("존재하지 않는 글입니다."));
 
-        PostResponse response = PostResponse.builder()
+        return PostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .build();
 
-        return response;
+        // 포스트 서비스에서 조회해온 포스트를 포스트 리스폰스로 변환하는 작업을 하는게 맞나?
+        /**
+         * Controller -> WebPostService( 리스폰스 관련 ) => Repository
+         *               PostService (외부와 통신 관련 ) 할 수도 있지만 그냥 하나에 퉁 치기도 함
+         *
+         *               중요한 점은 응답을 위한 클래스를 별도로 분리했다는 점이다.
+         */
+
     }
 
+    public List<PostResponse> getList() {
+        return postRepository.findAll().stream()
+//                .map(post -> {
+//                    return PostResponse.builder()
+//                            .id(post.getId())
+//                            .title(post.getTitle())
+//                            .content(post.getContent())
+//                            .build();
+//                })
+                 // 위 방식은 반복적인 작업을 많이 한다. 생성자로 퉁 쳐줄 수 있다
+                .map(post -> new PostResponse(post))
+
+
+                .collect(Collectors.toList());
+    }
 }
