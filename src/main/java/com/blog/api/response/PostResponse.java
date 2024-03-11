@@ -1,9 +1,10 @@
 package com.blog.api.response;
 
+import com.blog.api.domain.Post;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-@Builder
+
 @Getter
 public class PostResponse {
 
@@ -11,7 +12,16 @@ public class PostResponse {
     private final String title;
     private final String content;
 
-    public String getTitle() {
-        return this.title.substring(0, 10);
+    public PostResponse(Post post) {
+        this.id = post.getId();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+    }
+
+    @Builder
+    public PostResponse(Long id, String title, String content) {
+        this.id = id;
+        this.title = title.substring(0, Math.min(title.length(), 10));
+        this.content = content;
     }
 }

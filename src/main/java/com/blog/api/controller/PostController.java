@@ -43,8 +43,16 @@ public class PostController {
      */
     @GetMapping("/posts/{postId}")
     public PostResponse get(@PathVariable(name = "postId") Long id) {
-        PostResponse response = postService.get(id);
-        return response;
+        // Request 클래스 (요청과 타당성 검증 클래스)
+        // Response 클래스로 나누기 (서비스 정책에 맞는 로직이 들어가는 클래스)
+        return postService.get(id);
+    }
+
+    // 조회 API
+    // 게시글 여러개 조회
+    @GetMapping("/posts")
+    public List<PostResponse> getList() {
+        return postService.getList();
     }
 
 

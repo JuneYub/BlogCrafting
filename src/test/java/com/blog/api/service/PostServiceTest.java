@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -50,7 +52,7 @@ class PostServiceTest {
     void test2() {
         // given
         Post requestPost = Post.builder()
-                .title("foo")
+                .title("123456789012345")
                 .content("bar")
                 .build();
         postRepository.save(requestPost);
@@ -65,7 +67,35 @@ class PostServiceTest {
         // then
         assertNotNull(response);
         assertEquals(1L, postRepository.count());
-        assertEquals("foo", response.getTitle());
+        assertEquals("1234567890", response.getTitle());
         assertEquals("bar", response.getContent());
+    }
+
+    @Test
+    @DisplayName("글 여러개 조회")
+    void test3() {
+        // given
+        Post requestPost1 = Post.builder()
+                .title("foo1")
+                .content("bar1")
+                .build();
+        postRepository.save(requestPost1);
+
+        Post requestPost2 = Post.builder()
+                .title("foo2")
+                .content("bar2")
+                .build();
+        postRepository.save(requestPost2);
+
+        // 클라이언트 요구사항
+        // json 응답에서 title 값을 최대 10글자로 해주세요 -> Post의 getTitle을 수정한다? -> 예를 들면 rss를 가져와야 하는 부분에서
+        // 전체 제목을 가져와야 함에 불과하고 10글자부분만 잘라 가져가면 문제가 생길 수 있다.
+        // 그렇기 때문에 서비스에 정책을 넣지 말자 => 응답 클래스를 분리하자
+
+        // when
+        List<PostResponse> posts = postService.getList();
+
+        // then
+        assertEquals(2, postRepository.count());
     }
 }
