@@ -6,6 +6,9 @@ import com.blog.api.request.PostCreate;
 import com.blog.api.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,6 +49,7 @@ public class PostService {
 
     }
 
+    /*
     public List<PostResponse> getList() {
         return postRepository.findAll().stream()
 //                .map(post -> {
@@ -57,8 +61,18 @@ public class PostService {
 //                })
                  // 위 방식은 반복적인 작업을 많이 한다. 생성자로 퉁 쳐줄 수 있다
                 .map(post -> new PostResponse(post))
-
-
                 .collect(Collectors.toList());
     }
+    */
+
+    public List<PostResponse> getList(Pageable pageable) {
+        //Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC,"id"));
+        return postRepository.findAll(pageable).stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
+
+
+
+
 }

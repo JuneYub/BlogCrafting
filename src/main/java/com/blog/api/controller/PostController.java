@@ -7,6 +7,8 @@ import com.blog.api.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.beans.Transient;
@@ -51,8 +53,8 @@ public class PostController {
     // 조회 API
     // 게시글 여러개 조회
     @GetMapping("/posts")
-    public List<PostResponse> getList() {
-        return postService.getList();
+    public List<PostResponse> getList(Pageable pageable) {
+        return postService.getList(pageable);
     }
 
 
