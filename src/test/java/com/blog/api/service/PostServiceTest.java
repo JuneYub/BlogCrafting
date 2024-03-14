@@ -9,10 +9,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @SpringBootTest
 class PostServiceTest {
@@ -71,21 +79,62 @@ class PostServiceTest {
         assertEquals("bar", response.getContent());
     }
 
+    /**
+     * 페이징 처리 사용 이유
+     * 1. 글이 너무 많으면 데이터가 내려갈 수 있다.
+     * 2. 서버에서 글을 가져오는 트래픽 비용이 커진다.
+     */
+    @Test
+    @DisplayName("글 1페이지 조회")
+    void test3() {
+        // give
+        List<Post> requestPosts = IntStream.range(1, 31)
+                        .mapToObj(i -> {
+                            return Post.builder()
+                                    .title("글 제목 - " + i)
+                                    .content("아브라카다브라 " + i)
+                                    .build();
+                        })
+                        .collect(Collectors.toList());
+
+        postRepository.saveAll(requestPosts);
+
+        Pageable pageable = PageRequest.of(0, 5, DESC, "id");
+        // when
+        List<PostResponse> posts = postService.getList(pageable);
+        // then
+        assertEquals(5L, posts.size());
+        assertEquals("글 제목 - 30", posts.get(0).getTitle());
+        assertEquals("글 제목 - 26", posts.get(4).getTitle());
+    }
+
+
+
+    /* 페이징 처리가 있으므로 사용하지 않는다.
     @Test
     @DisplayName("글 여러개 조회")
     void test3() {
         // given
-        Post requestPost1 = Post.builder()
-                .title("foo1")
-                .content("bar1")
-                .build();
-        postRepository.save(requestPost1);
+//        Post requestPost1 = Post.builder()
+//                .title("foo1")
+//                .content("bar1")
+//                .build();
+        postRepository.saveAll(List.of(
+                Post.builder()
+                        .title("foo1")
+                        .content("bar1")
+                        .build(),
+                Post.builder()
+                        .title("foo2")
+                        .content("bar2")
+                        .build()
+        ));
 
-        Post requestPost2 = Post.builder()
-                .title("foo2")
-                .content("bar2")
-                .build();
-        postRepository.save(requestPost2);
+//        Post requestPost2 = Post.builder()
+//                .title("foo2")
+//                .content("bar2")
+//                .build();
+//        postRepository.save(requestPost2);
 
         // 클라이언트 요구사항
         // json 응답에서 title 값을 최대 10글자로 해주세요 -> Post의 getTitle을 수정한다? -> 예를 들면 rss를 가져와야 하는 부분에서
@@ -98,4 +147,5 @@ class PostServiceTest {
         // then
         assertEquals(2, postRepository.count());
     }
+    */
 }

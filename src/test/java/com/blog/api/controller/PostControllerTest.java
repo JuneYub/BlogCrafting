@@ -19,6 +19,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -126,17 +131,39 @@ class PostControllerTest {
     @DisplayName("글 여러개 조회")
     void test5() throws Exception {
         // given
-        Post post1 = Post.builder()
+        List<Post> requsetPosts = IntStream.range(1, 31)
+                .mapToObj(i -> Post.builder()
+                        .title("글제목 " + i)
+                        .content("글내용 " + i)
+                        .build())
+                .collect(Collectors.toList());
+        postRepository.saveAll(requsetPosts);
+
+        // expected
+        mockMvc.perform(get("/posts?page=1&sort=id,desc&size=5")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(5)))
+                .andExpect(jsonPath("$[0].id").value(30))
+                .andExpect(jsonPath("$[0].title").value("글제목 30"))
+                .andExpect(jsonPath("$[0].content").value("글내용 30"))
+                .andDo(print());
+    }
+
+    /*
+    @Test
+    @DisplayName("글 여러개 조회")
+    void test5() throws Exception {
+        // given
+        Post post1 = postRepository.save(Post.builder()
                 .title("title1")
                 .content("content1")
-                .build();
-        postRepository.save(post1);
+                .build());
 
-        Post post2 = Post.builder()
+        Post post2 = postRepository.save(Post.builder()
                 .title("title2")
                 .content("content2")
-                .build();
-        postRepository.save(post2);
+                .build());
 
         // expected
         mockMvc.perform(get("/posts")
@@ -146,8 +173,12 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[0].id").value(post1.getId()))
                 .andExpect(jsonPath("$[0].title").value("title1"))
                 .andExpect(jsonPath("$[0].content").value("content1"))
+                .andExpect(jsonPath("$[1].id").value(post2.getId()))
+                .andExpect(jsonPath("$[1].title").value("title2"))
+                .andExpect(jsonPath("$[1].content").value("content2"))
                 .andDo(print());
 
     }
+    */
 
 }
