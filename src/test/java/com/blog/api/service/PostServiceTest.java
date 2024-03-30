@@ -3,7 +3,9 @@ package com.blog.api.service;
 import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.blog.api.response.PostResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -148,4 +150,73 @@ class PostServiceTest {
         assertEquals(2, postRepository.count());
     }
     */
+
+    @Test
+    @DisplayName("글 제목 수정")
+    void test4() {
+        // give
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("신고가갱신중")
+                .content("반포자이")
+                .build();
+
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id=" + post.getId()));
+
+        Assertions.assertEquals("신고가갱신중", changedPost.getTitle());
+    }
+
+    @Test
+    @DisplayName("글 내용 수정")
+    void test5() {
+        // give
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("신고가갱신중")
+                .content("한남더힐")
+                .build();
+
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id=" + post.getId()));
+
+        Assertions.assertEquals("한남더힐", changedPost.getContent());
+    }
+
+
+    @Test
+    @DisplayName("글 내용 삭제")
+    void test6() {
+        // given
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+        postService.delete(post.getId());
+
+        // then
+        Assertions.assertEquals(0, postRepository.count());
+    }
 }

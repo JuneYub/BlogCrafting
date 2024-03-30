@@ -2,6 +2,7 @@ package com.blog.api.controller;
 
 import com.blog.api.domain.Post;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.blog.api.response.PostResponse;
 import com.blog.api.service.PostService;
 import jakarta.validation.Valid;
@@ -57,5 +58,13 @@ public class PostController {
         return postService.getList(pageable);
     }
 
+    @PatchMapping("/posts/{postId}")
+    public void edit(@PathVariable Long postId, @RequestBody @Valid PostEdit request) {
+        postService.edit(postId, request);
+    }
 
+    @DeleteMapping("/posts/{postId}")
+    public void delete(@PathVariable Long postId) {
+        postService.delete(postId);
+    }
 }
