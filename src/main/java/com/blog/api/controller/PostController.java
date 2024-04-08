@@ -2,6 +2,8 @@ package com.blog.api.controller;
 
 import com.blog.api.domain.Post;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
+import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import com.blog.api.service.PostService;
 import jakarta.validation.Valid;
@@ -53,8 +55,13 @@ public class PostController {
     // 조회 API
     // 게시글 여러개 조회
     @GetMapping("/posts")
-    public List<PostResponse> getList(Pageable pageable) {
-        return postService.getList(pageable);
+    public List<PostResponse> getList(@ModelAttribute PostSearch postSearch) {
+        return postService.getList(postSearch);
+    }
+
+    @PatchMapping("/posts/{postId}")
+    public void edit(@PathVariable Long postId, @RequestBody @Valid PostEdit request) {
+        postService.edit(postId, request);
     }
 
 

@@ -35,4 +35,10 @@ public class ExceptionController {
         }
         return response;
     }
+
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(PostNotFound.class)
+
 }

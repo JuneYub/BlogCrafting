@@ -26,8 +26,7 @@ import java.util.stream.IntStream;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -118,7 +117,7 @@ class PostControllerTest {
 
         // expected
         mockMvc.perform(get("/posts/{postId}", post.getId())
-                .contentType(APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(post.getId()))
                 .andExpect(jsonPath("$.title").value(post.getTitle()))
@@ -130,6 +129,7 @@ class PostControllerTest {
     @Test
     @DisplayName("글 여러개 조회")
     void test5() throws Exception {
+        System.out.println("===================" + postRepository.count());
         // given
         List<Post> requsetPosts = IntStream.range(1, 31)
                 .mapToObj(i -> Post.builder()
@@ -140,15 +140,15 @@ class PostControllerTest {
         postRepository.saveAll(requsetPosts);
 
         // expected
-        mockMvc.perform(get("/posts?page=1&sort=id,desc&size=5")
-                .contentType(APPLICATION_JSON))
+        mockMvc.perform(get("/posts?page=1&size=10")
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(5)))
-                .andExpect(jsonPath("$[0].id").value(30))
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id").value(requsetPosts.get(29).getId()))
                 .andExpect(jsonPath("$[0].title").value("글제목 30"))
                 .andExpect(jsonPath("$[0].content").value("글내용 30"))
                 .andDo(print());
-    }
+
 
     /*
     @Test
@@ -177,8 +177,66 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[1].title").value("title2"))
                 .andExpect(jsonPath("$[1].content").value("content2"))
                 .andDo(print());
-
-    }
     */
+    }
+
+
+    @Test
+    @DisplayName("페이지를 0으로 요청해도 첫 페이지가 나온다.")
+    void test6() throws Exception {
+        // given
+        List<Post> requsetPosts = IntStream.range(1, 31)
+                .mapToObj(i -> Post.builder()
+                        .title("글제목 " + i)
+                        .content("글내용 " + i)
+                        .build())
+                .collect(Collectors.toList());
+        postRepository.saveAll(requsetPosts);
+
+        // expected
+        mockMvc.perform(get("/posts?page=0&size=10")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id").value(requsetPosts.get(29).getId()))
+                .andExpect(jsonPath("$[0].title").value("글제목 30"))
+                .andExpect(jsonPath("$[0].content").value("글내용 30"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 제목 수정")
+    void test7() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("한남")
+                .content("반포자이")
+                .build();
+        // when
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("한남더힐")
+                .content("반포자이")
+                .build();
+
+        // expected
+        mockMvc.perform(patch("/posts/{postId}", post.getId()) // PATCH /post/{postId}
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit))
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 조회")
+    void test9() throws Exception {
+        // expected
+        mockMvc.perform(get("/posts/{postId}", 1L)
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 
 }
