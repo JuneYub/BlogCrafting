@@ -3,6 +3,7 @@ package com.blog.api.controller;
 import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -142,11 +143,12 @@ class PostControllerTest {
         // expected
         mockMvc.perform(get("/posts?page=1&size=10")
                         .contentType(APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isOk()
                 .andExpect(jsonPath("$.length()", is(10)))
                 .andExpect(jsonPath("$[0].id").value(requsetPosts.get(29).getId()))
                 .andExpect(jsonPath("$[0].title").value("글제목 30"))
                 .andExpect(jsonPath("$[0].content").value("글내용 30"))
+
                 .andDo(print());
 
 
@@ -237,6 +239,49 @@ class PostControllerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("글 제목 수정")
+    void test7() throws Exception {
+        // given
+        // give
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("신고가갱신중")
+                .content("한남더힐")
+                .build();
+
+        // expected
+        mockMvc.perform(get("/posts/{postId}", post.getId()) // PATCH /posts/{postId}
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void test8() throws Exception {
+        // given
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+        postRepository.save(post);
+
+        // expected
+        mockMvc.perform(delete("/posts/{postId}", post.getId())
+                .contentType(APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                                .andDo(print());
+
     }
 
 }

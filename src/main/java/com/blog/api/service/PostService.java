@@ -6,7 +6,13 @@ import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
 import com.blog.api.request.PostEdit;
 import com.blog.api.request.PostSearch;
+import com.blog.api.exception.PostNotFound;
+import com.blog.api.repository.PostRepository;
+import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
+
 import com.blog.api.response.PostResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +40,7 @@ public class PostService {
 
     public PostResponse get(Long id) {
         Post post = postRepository.findById(id)
-                .orElseThrow( () -> new IllegalArgumentException("존재하지 않는 글입니다."));
+                .orElseThrow(PostNotFound::new);
 
         return PostResponse.builder()
                 .id(post.getId())
@@ -82,23 +88,24 @@ public class PostService {
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
     }
-
+    @Transactional
     public void edit(Long id, PostEdit postEdit) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+                .orElseThrow(PostNotFound::new);
 
         PostEditor.PostEditorBuilder editorBuilder = post.toEditor();
-
+      
         PostEditor postEditor = editorBuilder.title(postEdit.getTitle())
-                        .content(postEdit.getContent())
-                        .build();
-
+                .content(postEdit.getContent())
+                .build();
         post.edit(postEditor);
-
-        postRepository.save(post);
     }
 
 
+    public void delete(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(PostNotFound::new);
 
-
+        postRepository.delete(post);
+    }
 }

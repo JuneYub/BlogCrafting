@@ -1,6 +1,7 @@
 package com.blog.api.service;
 
 import com.blog.api.domain.Post;
+import com.blog.api.exception.PostNotFound;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
 import com.blog.api.request.PostEdit;
@@ -179,11 +180,32 @@ class PostServiceTest {
 
         Assertions.assertEquals("더힐", changeedPost.getTitle());
         Assertions.assertEquals("반포자이", changeedPost.getContent());
+        // give
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("신고가갱신중")
+                .content("반포자이")
+                .build();
+
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id=" + post.getId()));
+
+        Assertions.assertEquals("신고가갱신중", changedPost.getTitle());
     }
 
     @Test
     @DisplayName("글 내용 수정")
     void test5() {
+
         // given
         Post post = Post.builder()
                 .title("한남")
@@ -205,5 +227,106 @@ class PostServiceTest {
 
         Assertions.assertEquals("한남", changeedPost.getTitle());
         Assertions.assertEquals("초가집", changeedPost.getContent());
+    }
+}
+
+        // give
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("신고가갱신중")
+                .content("한남더힐")
+                .build();
+
+        // when
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id=" + post.getId()));
+
+        Assertions.assertEquals("한남더힐", changedPost.getContent());
+    }
+
+
+    @Test
+    @DisplayName("글 내용 삭제")
+    void test6() {
+        // given
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+        postService.delete(post.getId());
+
+        // then
+        Assertions.assertEquals(0, postRepository.count());
+    }
+
+    @Test
+    @DisplayName("글 1개 조회 예외")
+    void test7() {
+        // given
+        Post post = Post.builder()
+                .title("foo")
+                .content("bar")
+                .build();
+        postRepository.save(post);
+
+        // expected
+        assertThrows(PostNotFound.class, () -> {
+            postService.get(post.getId() + 1L);
+        });
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 - 존재하지 않는 글")
+    void test8() {
+        // given
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        // when
+        postService.delete(post.getId());
+
+        // then
+        assertThrows(PostNotFound.class, () -> {
+            postService.delete(post.getId() + 1L);
+        });
+    }
+
+    @Test
+    @DisplayName("글 내용 수정")
+    void test9() {
+        // give
+        Post post = Post.builder()
+                .title("신고가갱신")
+                .content("반포자이")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("신고가갱신중")
+                .content("한남더힐")
+                .build();
+
+        // expected
+        assertThrows(PostNotFound.class, () -> {
+            postService.edit(post.getId() + 1L, postEdit);
+        });
+
     }
 }
