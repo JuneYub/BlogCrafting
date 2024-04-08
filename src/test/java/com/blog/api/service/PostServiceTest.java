@@ -5,6 +5,7 @@ import com.blog.api.exception.PostNotFound;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
 import com.blog.api.request.PostEdit;
+import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,13 +103,16 @@ class PostServiceTest {
 
         postRepository.saveAll(requestPosts);
 
-        Pageable pageable = PageRequest.of(0, 5, DESC, "id");
+        PostSearch postSearch = PostSearch.builder()
+                .page(1)
+                .size(10)
+                .build();
         // when
-        List<PostResponse> posts = postService.getList(pageable);
+        List<PostResponse> posts = postService.getList(postSearch);
         // then
-        assertEquals(5L, posts.size());
+        assertEquals(10L, posts.size());
         assertEquals("글 제목 - 30", posts.get(0).getTitle());
-        assertEquals("글 제목 - 26", posts.get(4).getTitle());
+        assertEquals("글 제목 - 21", posts.get(9).getTitle());
     }
 
 
@@ -155,6 +159,27 @@ class PostServiceTest {
     @Test
     @DisplayName("글 제목 수정")
     void test4() {
+        // given
+        Post post = Post.builder()
+                .title("한남")
+                .content("반포자이")
+                .build();
+        // when
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("더힐")
+                .content("반포자이")
+                .build();
+
+        postService.edit(post.getId(), postEdit);
+
+        // then
+        Post changeedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id=" + post.getId()));
+
+        Assertions.assertEquals("더힐", changeedPost.getTitle());
+        Assertions.assertEquals("반포자이", changeedPost.getContent());
         // give
         Post post = Post.builder()
                 .title("신고가갱신")
@@ -180,6 +205,31 @@ class PostServiceTest {
     @Test
     @DisplayName("글 내용 수정")
     void test5() {
+
+        // given
+        Post post = Post.builder()
+                .title("한남")
+                .content("반포자이")
+                .build();
+        // when
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("한남")
+                .content("초가집")
+                .build();
+
+        postService.edit(post.getId(), postEdit);
+
+        // then
+        Post changeedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id=" + post.getId()));
+
+        Assertions.assertEquals("한남", changeedPost.getTitle());
+        Assertions.assertEquals("초가집", changeedPost.getContent());
+    }
+}
+
         // give
         Post post = Post.builder()
                 .title("신고가갱신")
