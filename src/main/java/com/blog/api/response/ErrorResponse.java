@@ -1,5 +1,6 @@
 package com.blog.api.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,12 @@ public class ErrorResponse {
 
     private final String code;
     private final String message;
-
-    private final Map<String, String> validation = new HashMap<>();
+    private final Map<String, String> validation;
     @Builder
-    public ErrorResponse(String code, String message) {
+    public ErrorResponse(String code, String message, Map<String, String> validation) {
         this.code = code;
         this.message = message;
+        this.validation = validation;
     }
 
     public void addValidatation(String fieldName, String errorMessage) {
