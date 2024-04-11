@@ -1,10 +1,20 @@
 <script setup lang="ts">
-const posts = [
-  {id : 1, title: "제목1", content : "내용1"},
-  {id : 2, title: "제목2", content : "내용2"},
-  {id : 3, title: "제목3", content : "내용3"},
-  {id : 4, title: "제목4", content : "내용4"},
-]
+import axios from "axios";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
+const posts = ref([]);
+
+axios.get("/api/posts?page=1&size=5").then((response) => {
+  response.data.forEach((r:any) => {
+    posts.value.push(r);
+  });
+});
+
+const moveToRead = () => {
+  router.push({name: "read"})
+}
 
 </script>
 
@@ -12,7 +22,7 @@ const posts = [
   <ul>
     <li v-for="post in posts" :key="post.id">
       <div>
-        {{post.title}}
+        <router-link :to="{name: 'read', params: {postId: post.id} }">{{post.title}}</router-link>
       </div>
 
       <div>

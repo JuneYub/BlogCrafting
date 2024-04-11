@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
-
+    id "org.asciidoctor.jvm.convert" version "3.3.2"
 }
 
 group = 'com.blog'
@@ -16,7 +16,10 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    asciidoctorExt
 }
+
+
 
 repositories {
     mavenCentral()
@@ -39,6 +42,10 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // spring rest docs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }
 
 
@@ -57,4 +64,29 @@ task cleanGeneatedDir(type: Delete) { // 인텔리제이 annotation processor �
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+/**
+ * 스프링 resc docs
+ */
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+    outputs.dir snippetsDir
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+    dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    copy {
+        from asciidoctor.outputDir
+        into "src/main/resources/static/docs"
+    }
 }
