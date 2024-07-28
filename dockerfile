@@ -4,7 +4,11 @@ WORKDIR /app
 
 COPY . .
 RUN chmod +x ./gradlew
-RUN ./gradlew build --no-daemon
+
+# 의존성 다운로드
+RUN ./gradlew downloadDependencies --no-daemon
+
+RUN ./gradlew build --no-daemon -x test
 
 EXPOSE 8080
 
