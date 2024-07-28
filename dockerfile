@@ -4,7 +4,7 @@ WORKDIR /app/front
 COPY front/package*.json ./
 RUN npm install
 COPY front .
-RUN npm run build
+RUN npm run dev
 
 # Spring Boot 빌드 스테이지
 FROM openjdk:17-jdk AS backend-build
