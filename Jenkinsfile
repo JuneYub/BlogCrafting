@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Build Frontend Docker Image') {
             steps {
-                dir('BlogCrafting/front') {
+                dir('front') {
                     sh "docker build -t ${FRONTEND_IMAGE} ."
                 }
             }
