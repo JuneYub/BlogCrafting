@@ -4,10 +4,6 @@ FROM gradle:8.9-jdk17 AS builder
 # 작업 디렉토리 설정
 WORKDIR /build
 
-# Gradle 캐시를 활용하기 위해 필요한 파일들만 복사
-COPY build.gradle.kts settings.gradle.kts ./
-COPY gradle ./gradle
-
 # Gradle 의존성들을 미리 다운로드
 RUN gradle build -x test --parallel --continue
 
