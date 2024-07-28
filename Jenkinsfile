@@ -16,16 +16,14 @@ pipeline {
         }
         stage('Build Frontend Docker Image') {
             steps {
-                dir('frontend') {
+                dir('BlogCrafting/front') {
                     sh "docker build -t ${FRONTEND_IMAGE} ."
                 }
             }
         }
         stage('Build Backend Docker Image') {
             steps {
-                dir('backend') {
-                    sh "docker build -t ${BACKEND_IMAGE} ."
-                }
+                sh "docker build -t ${BACKEND_IMAGE} ."
             }
         }
         stage('Deploy Frontend') {
