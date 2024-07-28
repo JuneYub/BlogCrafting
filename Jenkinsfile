@@ -1,9 +1,12 @@
 pipeline {
     agent any
     environment {
-        APP_NAME = "blog"
-        DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
-	APP_PORT ="8081"
+        FRONTEND_NAME = "blog-frontend"
+        BACKEND_NAME = "blog-backend"
+        FRONTEND_PORT = "3000"
+        BACKEND_PORT = "8080"
+        FRONTEND_IMAGE = "${FRONTEND_NAME}:${BUILD_NUMBER}"
+        BACKEND_IMAGE = "${BACKEND_NAME}:${BUILD_NUMBER}"
     }
     stages {
         stage('Checkout') {
@@ -11,17 +14,35 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build Docker Image') {
+        stage('Build Frontend Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                dir('frontend') {
+                    sh "docker build -t ${FRONTEND_IMAGE} ."
+                }
             }
         }
-        stage('Deploy') {
+        stage('Build Backend Docker Image') {
+            steps {
+                dir('backend') {
+                    sh "docker build -t ${BACKEND_IMAGE} ."
+                }
+            }
+        }
+        stage('Deploy Frontend') {
             steps {
                 sh """
-                    docker stop ${APP_NAME} || true
-                    docker rm ${APP_NAME} || true
-                    docker run -d --name ${APP_NAME} -p ${APP_PORT}:8080 ${DOCKER_IMAGE}
+                    docker stop ${FRONTEND_NAME} || true
+                    docker rm ${FRONTEND_NAME} || true
+                    docker run -d --name ${FRONTEND_NAME} -p ${FRONTEND_PORT}:3000 ${FRONTEND_IMAGE}
+                """
+            }
+        }
+        stage('Deploy Backend') {
+            steps {
+                sh """
+                    docker stop ${BACKEND_NAME} || true
+                    docker rm ${BACKEND_NAME} || true
+                    docker run -d --name ${BACKEND_NAME} -p ${BACKEND_PORT}:8080 ${BACKEND_IMAGE}
                 """
             }
         }
@@ -29,6 +50,9 @@ pipeline {
     post {
         failure {
             echo 'The Pipeline failed :('
+        }
+        success {
+            echo 'The Pipeline completed successfully :)'
         }
     }
 }
