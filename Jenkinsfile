@@ -4,7 +4,7 @@ pipeline {
         FRONTEND_NAME = "blog-frontend"
         BACKEND_NAME = "blog-backend"
         FRONTEND_PORT = "3000"
-        BACKEND_PORT = "8080"
+        BACKEND_PORT = "8081"
         FRONTEND_IMAGE = "${FRONTEND_NAME}:${BUILD_NUMBER}"
         BACKEND_IMAGE = "${BACKEND_NAME}:${BUILD_NUMBER}"
     }
