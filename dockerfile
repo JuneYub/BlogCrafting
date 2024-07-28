@@ -14,6 +14,9 @@ COPY settings.gradle .
 # 웹 어플리케이션 소스 복사
 COPY src src
 
+# Gradle wrapper 생성
+RUN gradle wrapper
+
 # gradlew 실행권한 부여
 RUN chmod +x ./gradlew
 # gradlew를 사용하여 실행 가능한 jar 파일 생성
