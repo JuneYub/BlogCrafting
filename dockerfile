@@ -2,15 +2,22 @@
 FROM gradle:8.9-jdk17 AS builder
 
 WORKDIR /app
+ # gradlew 복사
+COPY gradlew .
 
-COPY gradlew . # gradlew 복사
-COPY gradle gradle # gradle 복사
-COPY build.gradle . # build.gradle 복사
-COPY settings.gradle . # settings.gradle 복사
-COPY src src # 웹 어플리케이션 소스 복사
+# gradle 복사
+COPY gradle gradle
+# build.gradle 복사
+COPY build.gradle .
+# settings.gradle 복사
+COPY settings.gradle .
+# 웹 어플리케이션 소스 복사
+COPY src src
 
-RUN chmod +x ./gradlew # gradlew 실행권한 부여
-RUN ./gradlew bootJar # gradlew를 사용하여 실행 가능한 jar 파일 생성
+# gradlew 실행권한 부여
+RUN chmod +x ./gradlew
+# gradlew를 사용하여 실행 가능한 jar 파일 생성
+RUN ./gradlew bootJar
 
 # 실행 이미지를 설정 (JDK 17 사용)
 FROM openjdk:17-jdk-slim
