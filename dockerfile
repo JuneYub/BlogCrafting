@@ -19,6 +19,6 @@ WORKDIR /app
 
 COPY --from=builder /app/build/libs/*.jar app.jar # builder 이미지에서 build/libs/*.jar 파일을 app.jar로 복사
 
-EXPOSE 8080 # 컨테이너 Port 노출
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"] # jar 파일 실행
