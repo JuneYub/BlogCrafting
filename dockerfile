@@ -15,7 +15,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew build --no-daemon
 
 # 최종 실행 스테이지
-FROM openjdk:17-jre-slim
+FROM openjdk:17-jdk
 WORKDIR /app
 COPY --from=backend-build /app/backend/build/libs/*.jar app.jar
 EXPOSE 8080
