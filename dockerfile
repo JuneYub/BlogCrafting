@@ -17,7 +17,7 @@ COPY src src
 # gradlew 실행권한 부여
 RUN chmod +x ./gradlew
 # gradlew를 사용하여 실행 가능한 jar 파일 생성
-RUN ./gradlew bootJar
+RUN ./gradlew bootJar --stacktrace --info
 
 # 실행 이미지를 설정 (JDK 17 사용)
 FROM openjdk:17-jdk-slim
