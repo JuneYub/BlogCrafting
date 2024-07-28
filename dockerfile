@@ -1,5 +1,5 @@
 # Gradle 빌드 이미지 설정 (JDK 17 사용)
-FROM gradle:7.0-jdk17 AS builder
+FROM gradle:8.9-jdk17 AS builder
 
 # 작업 디렉토리 설정
 WORKDIR /build
