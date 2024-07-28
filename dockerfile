@@ -4,14 +4,11 @@ FROM gradle:8.9-jdk17 AS builder
 # 작업 디렉토리 설정
 WORKDIR /build
 
-# Gradle 의존성들을 미리 다운로드
-RUN gradle build -x test --parallel --continue
+# 전체 소스 코드를 복사
+COPY . .
 
-# 나머지 소스 코드를 복사
-COPY src ./src
-
-# 애플리케이션을 빌드
-RUN gradle build -x test --no-daemon --info --stacktrace
+# Gradle 의존성들을 다운로드하고 애플리케이션을 빌드
+RUN gradle build -x test --no-daemon --info --stacktrac
 
 # 실행 이미지를 설정 (JDK 17 사용)
 FROM openjdk:17-jdk-slim
