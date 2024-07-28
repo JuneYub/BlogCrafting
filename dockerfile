@@ -4,6 +4,8 @@ FROM gradle:8.9-jdk17 AS builder
 # 작업 디렉토리 설정
 WORKDIR /app
 
+COPY . .
+
 # Gradle 설정 파일들을 복사
 COPY build.gradle.kts settings.gradle.kts /app/
 
