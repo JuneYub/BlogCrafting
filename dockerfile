@@ -8,7 +8,7 @@ WORKDIR /build
 COPY . .
 
 # Gradle 의존성들을 다운로드하고 애플리케이션을 빌드
-RUN gradle build -x test --no-daemon --info --stacktrac
+RUN gradle build -x test --no-daemon --stacktrace --debug
 
 # 실행 이미지를 설정 (JDK 17 사용)
 FROM openjdk:17-jdk-slim
